@@ -10,6 +10,7 @@
 #include <thread>
 #include <memory>
 #include <mutex>
+#include <condition_variable>
 class base_job : public std::enable_shared_from_this<base_job> {
 public:
     virtual ~base_job() = default;
