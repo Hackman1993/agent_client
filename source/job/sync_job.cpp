@@ -47,6 +47,7 @@ void sync_job::run() {
             ss << "-o \"" << boost::algorithm::replace_all_copy(std::filesystem::absolute(render_output_path).string(), "\\", "/") << "\" ";
             ss << "-F PNG ";
             ss << "-f " << job_data_.frame() << " ";
+            ss << "-E CYCLES -- --cycles-device CUDA+CPU ";
             std::cout << ss.str() << std::endl;
             boost::process::child render_process(ss.str());
             boost::system::error_code err;
