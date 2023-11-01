@@ -4,8 +4,14 @@
 #include "server_connection.h"
 boost::asio::io_context ios;
 std::shared_ptr<server_connection> connection = std::make_shared<server_connection>(ios);
-int main() {
+#include <boost/filesystem.hpp>
+
+int main(int argc, char** argv) {
+    if(!global_status::extract_command_option(argc, argv)){
+        return -1;
+    }
     agent::package::renderer::render_project project;
+
     project.set_project_id("test_project");
     project.set_begin_frame(1);
     project.set_end_frame(90);
@@ -25,6 +31,6 @@ int main() {
     }
     std::cout << std::endl;
 
-    connection->connect(global_status::server_ip(), 3308);
+    connection->connect(global_status::server_ip(), global_status::server_dispatch_port());
     ios.run();
 }

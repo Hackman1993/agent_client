@@ -11,6 +11,7 @@
 #include <boost/process.hpp>
 #include "agent/packages/protos/system.pb.h"
 #include <sahara/utils/uuid.h>
+
 sync_job::sync_job(agent::package::renderer::rendering_job job) : job_data_(std::move(job)) {
 
 }
@@ -26,7 +27,7 @@ void sync_job::run() {
                 break;
             }
 
-            std::filesystem::path project_file_path("./temp_file/project/" + job_data_.project().project_id() + "/" + job_data_.project().blend_file().relative_path());
+            std::filesystem::path project_file_path = global_status::system_path().append("temp_file/project/" + job_data_.project().project_id() + "/" + job_data_.project().blend_file().relative_path());
             if (!std::filesystem::exists(project_file_path)) {
                 reason = "Can't Find Project File";
                 break;
@@ -38,7 +39,7 @@ void sync_job::run() {
                 break;
             }
 
-            std::filesystem::path render_output_path("./temp_file/project/" + job_data_.project().project_id() + "/output/");
+            std::filesystem::path render_output_path = global_status::system_path().append("temp_file/project/" + job_data_.project().project_id() + "/output/");
             std::filesystem::create_directories(render_output_path);
 
             std::stringstream ss;
@@ -97,7 +98,7 @@ bool sync_job::sync_files() {
         running_count_ += 1;
         auto &file = job_data_.project().files(i);
         threads_.emplace_back(std::make_shared<std::thread>([&]() {
-            std::filesystem::path file_path("./temp_file/project/" + job_data_.project().project_id() + "/" + file.relative_path());
+            std::filesystem::path file_path = global_status::system_path().append("temp_file/project/" + job_data_.project().project_id() + "/" + file.relative_path());
             auto parent_path = file_path.parent_path().string();
             std::filesystem::create_directories(file_path.parent_path());
             bool success = false;
@@ -129,13 +130,13 @@ bool sync_job::sync_files() {
 
 std::filesystem::path sync_job::get_blender_executable_path() {
     std::string blender_version = job_data_.project().blender_version().empty() ? "3.6" : job_data_.project().blender_version();
-    std::string executable = "./blender/" + blender_version + "/";
+    std::filesystem::path executable = global_status::system_path().append("blender/" + blender_version + "/");
 #ifdef _WIN32
-    executable += "blender.exe";
+    executable.append("blender.exe");
 #else
-    executable += "blender";
+    executable.append("blender");
 #endif
-    return std::filesystem::path(executable);
+    return executable;
 }
 
 std::string sync_job::get_output_file_name(std::uint32_t frame) {

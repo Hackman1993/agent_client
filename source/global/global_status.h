@@ -22,15 +22,20 @@ public:
     static void remove_project(const std::string& project_id);
 
     static const std::string& server_ip();
-    static const std::uint16_t server_http_port();
-    static const std::uint16_t server_dispatch_port();
+    static std::uint16_t server_http_port();
+    static std::uint16_t server_dispatch_port();
+    static std::filesystem::path system_path();
+
+    static bool extract_command_option(int argc, char** argv);
 
 private:
     std::string client_id_ = "123";
     std::string server_ip_ = "192.168.0.191";
+    std::filesystem::path program_path_;
     std::uint16_t server_http_port_ = 3309;
     std::uint16_t server_dispatch_port_ = 3308;
-    global_status() = default;
+    global_status();
+    bool extract_command_option_(int argc, char** argv);
     static const std::unique_ptr<global_status>& check_ptr();
     static std::unique_ptr<global_status> self_ptr_;
 
